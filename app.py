@@ -500,9 +500,9 @@ def main():
 
     # ── 탭3: 빈도 분석 ───────────────────────────────────────────────────────
     with tab3:
-        SPEECH_LEVELS  = ['하십시오체', '해요체', '혼용', '없음']
-        LEVEL_COLORS   = ['#185FA5',   '#0F6E56', '#BA7517', '#888780']
-        LEVEL_BG       = ['#E6F1FB',   '#E1F5EE', '#FAEEDA', '#F1EFE8']
+        SPEECH_LEVELS = ['하십시오체', '해요체', '혼용', '반말', '명사형', '기타']
+        LEVEL_COLORS  = ['#185FA5',   '#0F6E56', '#BA7517', '#7B4FBF', 'B05520', '#888780']
+        LEVEL_BG      = ['#E6F1FB',   '#E1F5EE', '#FAEEDA', '#F0EAFB', '#FAEEE6', '#F1EFE8']
 
         st.markdown(
             f'<div class="section-note">전체 수집 데이터 <strong>{len(results)}개</strong> 기준 · 문체 사용 비중 진단</div>',
