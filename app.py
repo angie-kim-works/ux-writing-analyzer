@@ -210,10 +210,24 @@ def speech_level(ending_pairs: list, morphs: list) -> str:
         if c in ('하십시오체', '해요체', '반말'): lvls.add(c)
     if len(lvls) >= 2: return '혼용'
     if lvls: return lvls.pop()
-    # 종결어미 없음 — 마지막 형태소가 명사(NNG/NNP/NP)면 명사형
-    content_morphs = [mo for mo in morphs if mo.feature.pos not in ('SF','SP','SS','SE','SO','SW','SB')]
-    if content_morphs and content_morphs[-1].feature.pos in ('NNG','NNP','NP','XSN'):
-        return '명사형'
+    # 종결어미 없음 — 명사형 종결어미(ETN) 또는 마지막 형태소가 명사(NNG/NNP/NP)면 명사형
+    NOUN_ENDINGS = ('음','ㅁ','기')   # ETN 명사형 전성어미 surface
+    PUNCT_POS    = {'SF','SP','SS','SE','SO','SW','SB'}
+    content_morphs = [mo for mo in morphs if mo.feature.pos not in PUNCT_POS]
+    if content_morphs:
+        last = content_morphs[-1]
+        # ETN(명사형 전성어미)으로 끝나는 경우
+        if last.feature.pos == 'ETN':
+            return '명사형'
+        # ETN이 어미와 결합된 복합 태그 (e.g. XSV+ETN)
+        if 'ETN' in last.feature.pos:
+            return '명사형'
+        # surface가 명사형 어미인 경우 (음/ㅁ/기)
+        if last.surface in NOUN_ENDINGS:
+            return '명사형'
+        # 마지막 형태소가 명사인 경우
+        if last.feature.pos in ('NNG','NNP','NP','NNB','XSN'):
+            return '명사형'
     return '기타'
 
 def analyze_sentence(sentence: str, m) -> dict:
