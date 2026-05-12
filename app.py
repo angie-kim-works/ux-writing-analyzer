@@ -392,7 +392,7 @@ def main():
         c3.metric("높임 선어말어미",   f"{len(all_hon)}회")
         c4.metric("종결어미 총계",     f"{len(all_endings)}회")
 
-        sst.markdown("#### 문체 수준 분포")
+        st.markdown("#### 문체 수준 분포")
 
         DONUT_LEVELS = [
             ('하십시오체', '#185FA5'),
