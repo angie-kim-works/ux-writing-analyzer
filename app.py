@@ -161,6 +161,8 @@ FINANCIAL_COMPANIES = {
     '케이뱅크','카카오뱅크','토스뱅크','수협은행','SC제일은행',
     '삼성카드','현대카드','KB국민카드','신한카드','롯데카드','우리카드','하나카드','BC카드',
 }
+FINANCIAL_AFFIX = {
+    '비','가','구','기','미','불','비','재','전','본','동','타','익'
 
 # ── 하십시오체 판별 기준 ──
 # ① EF 단독: 습니다/습니까/십시오 계열
@@ -181,9 +183,10 @@ SPEECH_CLASS = {'하십시오체':'badge-blue','해요체':'badge-green','혼용
 # ── 분석 함수 ─────────────────────────────────────────────────────────────────
 
 def is_sino(word, pos):
-    if pos not in ('NNG', 'NNP'): return False
+    if pos not in ('NNG', 'NNP', 'XPN'): return False
     if word in FINANCIAL_COMPANIES: return False
     if word in FINANCIAL_SINO: return True
+    if word in FINANCIAL_AFFIX: return True
     return False
 
 def classify_ending(surface: str, pos: str) -> str:
