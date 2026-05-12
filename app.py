@@ -176,10 +176,11 @@ HAPSHO_BNIDA_SUFFIX = ('니다','니까')  # VV/XSV/XSA/VX+EF surface 공통 suf
 # ── 해요체 판별 기준 ──
 HAEYO_SUFFIX = ('어요','아요','해요','세요','게요','네요','죠','여요','래요')
 
-SPEECH_COLOR = {'하십시오체':'#185FA5','해요체':'#0F6E56','혼용':'#BA7517','없음':'#888780'}
-SPEECH_BG    = {'하십시오체':'#E6F1FB','해요체':'#E1F5EE','혼용':'#FAEEDA','없음':'#F1EFE8'}
-SPEECH_CLASS = {'하십시오체':'badge-blue','해요체':'badge-green','혼용':'badge-amber','없음':'badge-gray'}
+SPEECH_COLOR = {'하십시오체':'#185FA5','해요체':'#0F6E56','혼용':'#BA7517','반말':'#7B4FBF','명사형':'#B05520','기타':'#888780'}
+SPEECH_BG    = {'하십시오체':'#E6F1FB','해요체':'#E1F5EE','혼용':'#FAEEDA','반말':'#F0EAFB','명사형':'#FAEEE6','기타':'#F1EFE8'}
+SPEECH_CLASS = {'하십시오체':'badge-blue','해요체':'badge-green','혼용':'badge-amber','반말':'badge-purple','명사형':'badge-orange','기타':'badge-gray'}
 
+BANMAL_SUFFIX = ('해','어','아','지','거든','잖아','네','야','냐','나','구나','다','자','라','렴','려무나')
 
 # ── 분석 함수 ─────────────────────────────────────────────────────────────────
 
@@ -195,21 +196,25 @@ def classify_ending(surface: str, pos: str) -> str:
     if pos in ('EF', 'EP+EF'):
         if any(surface.endswith(p) for p in HAPSHO_EF_SUFFIX): return '하십시오체'
         if any(surface.endswith(p) for p in HAEYO_SUFFIX):     return '해요체'
+        if any(surface.endswith(p) for p in BANMAL_SUFFIX):    return '반말'
     if pos in HAPSHO_COMPOUND_POS:
-        # VV+EF / XSV+EF / XSA+EF / VX+EF — ㅂ니다 계열 surface 그대로 노출
         if any(surface.endswith(p) for p in HAPSHO_BNIDA_SUFFIX): return '하십시오체'
         if any(surface.endswith(p) for p in HAEYO_SUFFIX):        return '해요체'
     return '기타'
 
-def speech_level(ending_pairs: list) -> str:
+def speech_level(ending_pairs: list, morphs: list) -> str:
     """[(surface, pos), ...] 에서 전체 문체 수준 결정"""
     lvls = set()
     for surface, pos in ending_pairs:
         c = classify_ending(surface, pos)
-        if c == '하십시오체': lvls.add('하십시오체')
-        elif c == '해요체':   lvls.add('해요체')
+        if c in ('하십시오체', '해요체', '반말'): lvls.add(c)
     if len(lvls) >= 2: return '혼용'
-    return lvls.pop() if lvls else '없음'
+    if lvls: return lvls.pop()
+    # 종결어미 없음 — 마지막 형태소가 명사(NNG/NNP/NP)면 명사형
+    content_morphs = [mo for mo in morphs if mo.feature.pos not in ('SF','SP','SS','SE','SO','SW','SB')]
+    if content_morphs and content_morphs[-1].feature.pos in ('NNG','NNP','NP','XSN'):
+        return '명사형'
+    return '기타'
 
 def analyze_sentence(sentence: str, m) -> dict:
     morphs = m.parse(sentence)
@@ -233,7 +238,7 @@ def analyze_sentence(sentence: str, m) -> dict:
         'sino_count':          len(set(sino)),
         'final_endings':       final_endings,
         'ending_pairs':        ending_pairs,
-        'speech_level':        speech_level(ending_pairs),
+        'speech_level':        speech_level(ending_pairs, morphs),
         'honorific_morphemes': hons,
         'honorific_count':     len(hons),
     }
