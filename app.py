@@ -143,7 +143,7 @@ def get_mecab():
     return mecab.MeCab(user_dictionary_path=dic_path)
 
 
-# ── 한자어 판별 데이터 ────────────────────────────────────────────────────────
+# ── 한자어 판별 데이터 ──────────────────────────────────────────────────────── # 사용자 사전으로 사용 가능
 FINANCIAL_SINO = {
     '계좌','잔액','송금','이체','완료','처리','확인','거래','결제','입금','출금','납부',
     '조회','신청','등록','변경','해지','취소','신고','접수','발급','재발급','분실',
@@ -176,7 +176,6 @@ FINANCIAL_COMPANIES = {
     '케이뱅크','카카오뱅크','토스뱅크','수협은행','SC제일은행',
     '삼성카드','현대카드','KB국민카드','신한카드','롯데카드','우리카드','하나카드','BC카드',
 }
-NATIVE_MARKERS = {'람','늘','울','봄','꽃','잎','별','땅','불','바람'}
 
 # ── 하십시오체 판별 기준 ──
 # ① EF 단독: 습니다/습니까/십시오 계열
@@ -195,16 +194,11 @@ SPEECH_CLASS = {'하십시오체':'badge-blue','해요체':'badge-green','혼용
 
 
 # ── 분석 함수 ─────────────────────────────────────────────────────────────────
-def is_hangul(c): return '\uAC00' <= c <= '\uD7A3'
-def get_onset(c): return (ord(c) - 0xAC00) // (21 * 28)
 
 def is_sino(word, pos):
     if pos not in ('NNG', 'NNP'): return False
     if word in FINANCIAL_COMPANIES: return False
     if word in FINANCIAL_SINO: return True
-    if is_hangul(word[0]) and get_onset(word[0]) == 5: return True
-    if len(word) >= 2 and pos == 'NNG' and all(is_hangul(c) for c in word):
-        if not any(c in NATIVE_MARKERS for c in word): return True
     return False
 
 def classify_ending(surface: str, pos: str) -> str:
@@ -298,7 +292,7 @@ def pct(v, t): return round(v / t * 100) if t else 0
 # ── 메인 앱 ──────────────────────────────────────────────────────────────────
 def main():
     # ── 헤더
-    st.markdown("## UX 라이팅 문체 분석기")
+    st.markdown("## UX 라이팅 문체 간이 분석기")
     st.caption("MeCab-ko 형태소 분석 기반  ·  Google 스프레드시트 연동")
     st.divider()
 
@@ -325,7 +319,7 @@ def main():
                 st.session_state["sheet_url"] = sheet_url
                 st.success(f"✓ {len(rows)}개 문장 로드 완료")
             except requests.HTTPError as e:
-                st.error(f"불러오기 실패: HTTP {e.response.status_code} — 공유 설정을 확인하세요.")
+                st.error(f"불러오기 실패: HTTP {e.response.status_code} — 공유 설정을 확인해 주세요.")
                 return
             except Exception as e:
                 st.error(f"불러오기 실패: {e}")
