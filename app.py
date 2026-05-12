@@ -455,42 +455,73 @@ def main():
 
     # ── 탭3: 빈도 분석 ───────────────────────────────────────────────────────
     with tab3:
-        st.markdown("**상위 한자어**")
-        st.caption(f"총 {len(all_sino)}회 출현  ·  {len(set(all_sino))}종")
-        if sino_top:
-            chips_html = '<div class="chip-grid">' + ''.join(
-                f'<div class="chip"><span>{w}</span><span class="chip-cnt">{c}</span></div>'
-                for w, c in sino_top
-            ) + '</div>'
-            st.markdown(chips_html, unsafe_allow_html=True)
-        st.divider()
+        SPEECH_LEVELS  = ['하십시오체', '해요체', '혼용', '없음']
+        LEVEL_COLORS   = ['#185FA5',   '#0F6E56', '#BA7517', '#888780']
+        LEVEL_BG       = ['#E6F1FB',   '#E1F5EE', '#FAEEDA', '#F1EFE8']
 
-        col_ef, col_hon = st.columns(2)
-        with col_ef:
-            st.markdown("**종결어미 빈도**")
-            st.caption(f"총 {len(all_endings)}회")
-            max_ef = ending_top[0][1] if ending_top else 1
-            for e, c in ending_top:
+        st.markdown(
+            f'<div class="section-note">전체 수집 데이터 <strong>{len(results)}개</strong> 기준 · 문체 사용 비중 진단</div>',
+            unsafe_allow_html=True,
+        )
+
+        def render_speech_ratio(group_key, group_label):
+            groups = sorted(set(r[group_key] for r in analyzed if r[group_key]))
+            if not groups:
+                st.caption(f"{group_label} 데이터 없음")
+                return
+
+            st.markdown(f"**{group_label}별 문체 비중**")
+
+            for grp in groups:
+                grp_rows = [r for r in analyzed if r[group_key] == grp]
+                total_g  = len(grp_rows)
+                sl_cnt   = Counter(r['_analysis']['speech_level'] for r in grp_rows)
+
+                # 그룹 헤더
                 st.markdown(
-                    f'<div class="bar-label"><span>~{e}</span><span class="bar-sub">{c}회</span></div>'
-                    + progress_bar(c, max_ef, '#BA7517'),
+                    f'<div style="font-size:13px;font-weight:500;margin:14px 0 8px">'
+                    f'{grp} <span style="font-size:12px;font-weight:400;color:#888">({total_g}개 문장)</span></div>',
                     unsafe_allow_html=True,
                 )
 
-        with col_hon:
-            st.markdown("**높임 선어말어미 빈도**")
-            st.caption(f"총 {len(all_hon)}회")
-            max_hon = hon_top[0][1] if hon_top else 1
-            if hon_top:
-                for h, c in hon_top:
-                    st.markdown(
-                        f'<div class="bar-label"><span>\'{h}\'</span><span class="bar-sub">{c}회</span></div>'
-                        + progress_bar(c, max_hon, '#0F6E56'),
+                # 하십시오체 / 해요체 비중 강조 카드
+                cols = st.columns(len(SPEECH_LEVELS))
+                for col, lvl, color, bg in zip(cols, SPEECH_LEVELS, LEVEL_COLORS, LEVEL_BG):
+                    cnt  = sl_cnt.get(lvl, 0)
+                    rate = pct(cnt, total_g)
+                    col.markdown(
+                        f'<div style="background:{bg};border-radius:10px;padding:14px 12px;text-align:center">'
+                        f'<div style="font-size:11px;color:{color};font-weight:500;margin-bottom:6px">{lvl}</div>'
+                        f'<div style="font-size:28px;font-weight:700;color:{color};line-height:1">{rate}%</div>'
+                        f'<div style="font-size:11px;color:#aaa;margin-top:4px">{cnt}건</div>'
+                        f'</div>',
                         unsafe_allow_html=True,
                     )
-            else:
-                st.caption("높임 선어말어미 없음")
 
+                # 비율 바
+                hap_rate  = pct(sl_cnt.get('하십시오체', 0), total_g)
+                hae_rate  = pct(sl_cnt.get('해요체',    0), total_g)
+                etc_rate  = 100 - hap_rate - hae_rate
+                st.markdown(
+                    f'<div style="margin:8px 0 4px;height:10px;border-radius:5px;overflow:hidden;display:flex">'
+                    f'<div style="width:{hap_rate}%;background:#185FA5"></div>'
+                    f'<div style="width:{hae_rate}%;background:#0F6E56"></div>'
+                    f'<div style="width:{etc_rate}%;background:#e8e8e6"></div>'
+                    f'</div>'
+                    f'<div style="font-size:11px;color:#aaa;margin-bottom:12px">'
+                    f'<span style="color:#185FA5">■</span> 하십시오체&nbsp;&nbsp;'
+                    f'<span style="color:#0F6E56">■</span> 해요체&nbsp;&nbsp;'
+                    f'<span style="color:#ccc">■</span> 혼용/없음'
+                    f'</div>',
+                    unsafe_allow_html=True,
+                )
+
+        tab3_sub1, tab3_sub2 = st.tabs(["유형별", "프로세스별"])
+        with tab3_sub1:
+            render_speech_ratio('_type',    '유형')
+        with tab3_sub2:
+            render_speech_ratio('_process', '프로세스')
+            
     # ── 탭4: 문장별 결과 ─────────────────────────────────────────────────────
     with tab4:
         st.caption(f"{len(filtered)}개 문장")
