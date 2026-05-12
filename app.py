@@ -388,15 +388,65 @@ def main():
         c4.metric("종결어미 총계",     f"{len(all_endings)}회")
 
         st.markdown("#### 문체 수준 분포")
-        for lvl, cnt in speech_counts.most_common():
-            col_a, col_b = st.columns([1, 6])
-            with col_a:
-                st.markdown(
-                    badge(lvl, SPEECH_CLASS.get(lvl, 'badge-gray')),
-                    unsafe_allow_html=True,
-                )
-            with col_b:
-                st.progress(pct(cnt, n) / 100, text=f"{cnt}문장  ({pct(cnt,n)}%)")
+        hap_cnt = speech_counts.get('하십시오체', 0)
+        hae_cnt = speech_counts.get('해요체',    0)
+        hon_cnt = speech_counts.get('혼용',      0)
+        non_cnt = speech_counts.get('없음',      0)
+        hap_rate = pct(hap_cnt, n)
+        hae_rate = pct(hae_cnt, n)
+        hon_rate = pct(hon_cnt, n)
+        non_rate = pct(non_cnt, n)
+
+        seg_hap = hap_rate
+        seg_hae = seg_hap + hae_rate
+        seg_hon = seg_hae + hon_rate
+
+        st.markdown(
+            f'<div style="display:flex;align-items:center;gap:24px;margin:12px 0 20px;padding:16px 20px;'
+            f'background:#fafaf8;border-radius:12px;border:0.5px solid rgba(0,0,0,0.07)">'
+
+            f'<div style="flex-shrink:0;width:120px;height:120px;border-radius:50%;'
+            f'background:conic-gradient('
+            f'#185FA5 0% {seg_hap}%,'
+            f'#0F6E56 {seg_hap}% {seg_hae}%,'
+            f'#BA7517 {seg_hae}% {seg_hon}%,'
+            f'#e8e8e6 {seg_hon}% 100%);'
+            f'position:relative">'
+            f'<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);'
+            f'width:70px;height:70px;border-radius:50%;background:white;'
+            f'display:flex;flex-direction:column;align-items:center;justify-content:center">'
+            f'<div style="font-size:18px;font-weight:700;color:#1a1a18;line-height:1">{n}</div>'
+            f'<div style="font-size:9px;color:#aaa;margin-top:2px">문장</div>'
+            f'</div></div>'
+
+            f'<div style="display:flex;flex-direction:column;gap:8px;font-size:13px">'
+            f'<div style="display:flex;align-items:center;gap:7px">'
+            f'<div style="width:10px;height:10px;border-radius:2px;background:#185FA5;flex-shrink:0"></div>'
+            f'<span>하십시오체</span>'
+            f'<strong style="margin-left:4px;color:#185FA5">{hap_rate}%</strong>'
+            f'<span style="color:#bbb;font-size:12px">({hap_cnt}건)</span></div>'
+
+            f'<div style="display:flex;align-items:center;gap:7px">'
+            f'<div style="width:10px;height:10px;border-radius:2px;background:#0F6E56;flex-shrink:0"></div>'
+            f'<span>해요체</span>'
+            f'<strong style="margin-left:4px;color:#0F6E56">{hae_rate}%</strong>'
+            f'<span style="color:#bbb;font-size:12px">({hae_cnt}건)</span></div>'
+
+            f'<div style="display:flex;align-items:center;gap:7px">'
+            f'<div style="width:10px;height:10px;border-radius:2px;background:#BA7517;flex-shrink:0"></div>'
+            f'<span>혼용</span>'
+            f'<strong style="margin-left:4px;color:#BA7517">{hon_rate}%</strong>'
+            f'<span style="color:#bbb;font-size:12px">({hon_cnt}건)</span></div>'
+
+            f'<div style="display:flex;align-items:center;gap:7px">'
+            f'<div style="width:10px;height:10px;border-radius:2px;background:#e8e8e6;flex-shrink:0"></div>'
+            f'<span>없음</span>'
+            f'<strong style="margin-left:4px;color:#aaa">{non_rate}%</strong>'
+            f'<span style="color:#bbb;font-size:12px">({non_cnt}건)</span></div>'
+            f'</div>'
+            f'</div>',
+            unsafe_allow_html=True,
+        )
 
         st.markdown("#### 높임 선어말어미 사용률")
         st.caption(f"높임 표현('시/셨')이 포함된 문장: {hon_sents}개 ({pct(hon_sents, n)}%)")
