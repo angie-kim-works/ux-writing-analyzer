@@ -293,7 +293,7 @@ def pct(v, t): return round(v / t * 100) if t else 0
 def main():
     # ── 헤더
     st.markdown("## UX 라이팅 문체 간이 분석기")
-    st.caption("MeCab-ko 형태소 분석 기반  ·  Google 스프레드시트 연동")
+    st.caption("형태소 분석 기반 · Google 스프레드시트 연동")
     st.divider()
 
     # ── URL 입력
