@@ -392,63 +392,53 @@ def main():
         c3.metric("높임 선어말어미",   f"{len(all_hon)}회")
         c4.metric("종결어미 총계",     f"{len(all_endings)}회")
 
-        st.markdown("#### 문체 수준 분포")
-        hap_cnt = speech_counts.get('하십시오체', 0)
-        hae_cnt = speech_counts.get('해요체',    0)
-        hon_cnt = speech_counts.get('혼용',      0)
-        non_cnt = speech_counts.get('없음',      0)
-        hap_rate = pct(hap_cnt, n)
-        hae_rate = pct(hae_cnt, n)
-        hon_rate = pct(hon_cnt, n)
-        non_rate = pct(non_cnt, n)
+        sst.markdown("#### 문체 수준 분포")
 
-        seg_hap = hap_rate
-        seg_hae = seg_hap + hae_rate
-        seg_hon = seg_hae + hon_rate
+        DONUT_LEVELS = [
+            ('하십시오체', '#185FA5'),
+            ('해요체',    '#0F6E56'),
+            ('혼용',      '#BA7517'),
+            ('반말',      '#7B4FBF'),
+            ('명사형',    '#B05520'),
+            ('기타',      '#888780'),
+        ]
+
+        level_cnts  = {lvl: speech_counts.get(lvl, 0) for lvl, _ in DONUT_LEVELS}
+        level_rates = {lvl: pct(cnt, n) for lvl, cnt in level_cnts.items()}
+
+        # conic-gradient 세그먼트 누적
+        segs, acc = [], 0
+        for lvl, color in DONUT_LEVELS:
+            r = level_rates[lvl]
+            segs.append(f'{color} {acc}% {acc + r}%')
+            acc += r
+        conic = ','.join(segs)
+
+        # 범례 HTML
+        legend_html = ''
+        for lvl, color in DONUT_LEVELS:
+            cnt  = level_cnts[lvl]
+            rate = level_rates[lvl]
+            legend_html += (
+                f'<div style="display:flex;align-items:center;gap:7px">'
+                f'<div style="width:10px;height:10px;border-radius:2px;background:{color};flex-shrink:0"></div>'
+                f'<span>{lvl}</span>'
+                f'<strong style="margin-left:4px;color:{color}">{rate}%</strong>'
+                f'<span style="color:#bbb;font-size:12px">({cnt}건)</span></div>'
+            )
 
         st.markdown(
             f'<div style="display:flex;align-items:center;gap:24px;margin:12px 0 20px;padding:16px 20px;'
             f'background:#fafaf8;border-radius:12px;border:0.5px solid rgba(0,0,0,0.07)">'
-
             f'<div style="flex-shrink:0;width:120px;height:120px;border-radius:50%;'
-            f'background:conic-gradient('
-            f'#185FA5 0% {seg_hap}%,'
-            f'#0F6E56 {seg_hap}% {seg_hae}%,'
-            f'#BA7517 {seg_hae}% {seg_hon}%,'
-            f'#e8e8e6 {seg_hon}% 100%);'
-            f'position:relative">'
+            f'background:conic-gradient({conic});position:relative">'
             f'<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);'
             f'width:70px;height:70px;border-radius:50%;background:white;'
             f'display:flex;flex-direction:column;align-items:center;justify-content:center">'
             f'<div style="font-size:18px;font-weight:700;color:#1a1a18;line-height:1">{n}</div>'
             f'<div style="font-size:9px;color:#aaa;margin-top:2px">문장</div>'
             f'</div></div>'
-
-            f'<div style="display:flex;flex-direction:column;gap:8px;font-size:13px">'
-            f'<div style="display:flex;align-items:center;gap:7px">'
-            f'<div style="width:10px;height:10px;border-radius:2px;background:#185FA5;flex-shrink:0"></div>'
-            f'<span>하십시오체</span>'
-            f'<strong style="margin-left:4px;color:#185FA5">{hap_rate}%</strong>'
-            f'<span style="color:#bbb;font-size:12px">({hap_cnt}건)</span></div>'
-
-            f'<div style="display:flex;align-items:center;gap:7px">'
-            f'<div style="width:10px;height:10px;border-radius:2px;background:#0F6E56;flex-shrink:0"></div>'
-            f'<span>해요체</span>'
-            f'<strong style="margin-left:4px;color:#0F6E56">{hae_rate}%</strong>'
-            f'<span style="color:#bbb;font-size:12px">({hae_cnt}건)</span></div>'
-
-            f'<div style="display:flex;align-items:center;gap:7px">'
-            f'<div style="width:10px;height:10px;border-radius:2px;background:#BA7517;flex-shrink:0"></div>'
-            f'<span>혼용</span>'
-            f'<strong style="margin-left:4px;color:#BA7517">{hon_rate}%</strong>'
-            f'<span style="color:#bbb;font-size:12px">({hon_cnt}건)</span></div>'
-
-            f'<div style="display:flex;align-items:center;gap:7px">'
-            f'<div style="width:10px;height:10px;border-radius:2px;background:#e8e8e6;flex-shrink:0"></div>'
-            f'<span>없음</span>'
-            f'<strong style="margin-left:4px;color:#aaa">{non_rate}%</strong>'
-            f'<span style="color:#bbb;font-size:12px">({non_cnt}건)</span></div>'
-            f'</div>'
+            f'<div style="display:flex;flex-direction:column;gap:8px;font-size:13px">{legend_html}</div>'
             f'</div>',
             unsafe_allow_html=True,
         )
@@ -553,66 +543,41 @@ def main():
                         unsafe_allow_html=True,
                     )
 
-                # 원형 그래프
-                hap_cnt  = sl_cnt.get('하십시오체', 0)
-                hae_cnt  = sl_cnt.get('해요체',    0)
-                hon_cnt  = sl_cnt.get('혼용',      0)
-                non_cnt  = sl_cnt.get('없음',      0)
-                hap_rate = pct(hap_cnt, total_g)
-                hae_rate = pct(hae_cnt, total_g)
-                hon_rate = pct(hon_cnt, total_g)
-                non_rate = pct(non_cnt, total_g)
+# 원형 그래프
+                g_cnts  = {lvl: sl_cnt.get(lvl, 0) for lvl, _ in DONUT_LEVELS}
+                g_rates = {lvl: pct(cnt, total_g) for lvl, cnt in g_cnts.items()}
 
-                # SVG 도넛 차트 — conic-gradient 방식
-                seg_hap = hap_rate
-                seg_hae = seg_hap + hae_rate
-                seg_hon = seg_hae + hon_rate
+                segs, acc = [], 0
+                for lvl, color in DONUT_LEVELS:
+                    r = g_rates[lvl]
+                    segs.append(f'{color} {acc}% {acc + r}%')
+                    acc += r
+                conic_g = ','.join(segs)
+
+                legend_g = ''
+                for lvl, color in DONUT_LEVELS:
+                    cnt  = g_cnts[lvl]
+                    rate = g_rates[lvl]
+                    legend_g += (
+                        f'<div style="display:flex;align-items:center;gap:7px">'
+                        f'<div style="width:10px;height:10px;border-radius:2px;background:{color};flex-shrink:0"></div>'
+                        f'<span>{lvl}</span>'
+                        f'<strong style="margin-left:4px;color:{color}">{rate}%</strong>'
+                        f'<span style="color:#bbb">({cnt}건)</span></div>'
+                    )
 
                 st.markdown(
                     f'<div style="display:flex;align-items:center;gap:24px;margin:12px 0 20px;padding:16px 20px;'
                     f'background:#fafaf8;border-radius:12px;border:0.5px solid rgba(0,0,0,0.07)">'
-
-                    # 도넛
                     f'<div style="flex-shrink:0;width:100px;height:100px;border-radius:50%;'
-                    f'background:conic-gradient('
-                    f'#185FA5 0% {seg_hap}%,'
-                    f'#0F6E56 {seg_hap}% {seg_hae}%,'
-                    f'#BA7517 {seg_hae}% {seg_hon}%,'
-                    f'#e8e8e6 {seg_hon}% 100%);'
-                    f'position:relative">'
+                    f'background:conic-gradient({conic_g});position:relative">'
                     f'<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);'
                     f'width:58px;height:58px;border-radius:50%;background:white;'
                     f'display:flex;flex-direction:column;align-items:center;justify-content:center">'
                     f'<div style="font-size:15px;font-weight:700;color:#1a1a18;line-height:1">{total_g}</div>'
                     f'<div style="font-size:9px;color:#aaa;margin-top:2px">문장</div>'
                     f'</div></div>'
-
-                    # 범례
-                    f'<div style="display:flex;flex-direction:column;gap:7px;font-size:12px">'
-                    f'<div style="display:flex;align-items:center;gap:7px">'
-                    f'<div style="width:10px;height:10px;border-radius:2px;background:#185FA5;flex-shrink:0"></div>'
-                    f'<span>하십시오체</span>'
-                    f'<strong style="margin-left:4px;color:#185FA5">{hap_rate}%</strong>'
-                    f'<span style="color:#bbb">({hap_cnt}건)</span></div>'
-
-                    f'<div style="display:flex;align-items:center;gap:7px">'
-                    f'<div style="width:10px;height:10px;border-radius:2px;background:#0F6E56;flex-shrink:0"></div>'
-                    f'<span>해요체</span>'
-                    f'<strong style="margin-left:4px;color:#0F6E56">{hae_rate}%</strong>'
-                    f'<span style="color:#bbb">({hae_cnt}건)</span></div>'
-
-                    f'<div style="display:flex;align-items:center;gap:7px">'
-                    f'<div style="width:10px;height:10px;border-radius:2px;background:#BA7517;flex-shrink:0"></div>'
-                    f'<span>혼용</span>'
-                    f'<strong style="margin-left:4px;color:#BA7517">{hon_rate}%</strong>'
-                    f'<span style="color:#bbb">({hon_cnt}건)</span></div>'
-
-                    f'<div style="display:flex;align-items:center;gap:7px">'
-                    f'<div style="width:10px;height:10px;border-radius:2px;background:#e8e8e6;flex-shrink:0"></div>'
-                    f'<span>없음</span>'
-                    f'<strong style="margin-left:4px;color:#aaa">{non_rate}%</strong>'
-                    f'<span style="color:#bbb">({non_cnt}건)</span></div>'
-                    f'</div>'
+                    f'<div style="display:flex;flex-direction:column;gap:7px;font-size:12px">{legend_g}</div>'
                     f'</div>',
                     unsafe_allow_html=True,
                 )
