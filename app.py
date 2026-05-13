@@ -256,7 +256,7 @@ def analyze_sentence(sentence: str, m) -> dict:
         if is_sino(w, pos):
             sino.append(w)
         # 종결어미: EF 단독 + EP+EF + VV/XSV/XSA/VX+EF
-        if pos in ('EF', 'EP+EF') or pos in HAPSHO_COMPOUND_POS:
+        if pos in ('EF', 'EP+EF') or pos in COMPOUND_POS:
             ending_pairs.append((w, pos))
         # 높임 선어말어미
         if pos == 'EP' and w in ('시', '셨'):
