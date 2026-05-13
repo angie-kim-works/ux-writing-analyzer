@@ -114,8 +114,7 @@ def _build_user_dic() -> str:
    # ── NNG 일반명사 사용자 사전 ──────────────────────────────────────────
     # 단어만 추가하면 됩니다. 시스템 사전보다 무조건 우선 적용됩니다.
     NNG_TERMS = [
-        '비대면','영업점','전월실적','거래','영업점','영업일','불건전주문',
-        '미동의','초고수',
+        '비대면', '영업점', '거래'
     ]
 
     csv_lines = []
@@ -133,7 +132,7 @@ def _build_user_dic() -> str:
         last = word[-1]
         jong = 'T' if has_jongseong(last) else 'F'
         rid  = 3534 if jong == 'T' else 3533
-        csv_lines.append(f"{word},1780,{rid},-10000,NNG,*,{jong},{word},*,*,*,*")
+        csv_lines.append(f"{word},1780,{rid},-1000,NNG,*,{jong},{word},*,*,*,*")
         
     tmp_dir  = tempfile.mkdtemp()
     csv_path = os.path.join(tmp_dir, 'financial.csv')
