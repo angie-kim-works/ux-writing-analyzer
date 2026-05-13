@@ -190,7 +190,8 @@ HAPSHO_COMPOUND_POS = {'VV+EF', 'XSV+EF', 'XSA+EF', 'VX+EF'}
 HAPSHO_BNIDA_SUFFIX = ('니다','니까')  # VV/XSV/XSA/VX+EF surface 공통 suffix (바랍니다/드립니다/됩니다/합니다 등)
 
 # ── 해요체 판별 기준 ──
-HAEYO_SUFFIX = ('어요','아요','해요','세요','게요','네요','죠','여요','래요','까요','나요')
+HAEYO_EF_SUFFIX = ('어요','아요','해요','세요','게요','네요','죠','여요','래요','까요','나요')
+HAEYO_YO_SUFFIX = ('어요','아요','에요','이에요')
 
 SPEECH_COLOR = {'하십시오체':'#185FA5','해요체':'#0F6E56','혼용':'#BA7517','반말':'#7B4FBF','명사형':'#B05520','기타':'#888780'}
 SPEECH_BG    = {'하십시오체':'#E6F1FB','해요체':'#E1F5EE','혼용':'#FAEEDA','반말':'#F0EAFB','명사형':'#FAEEE6','기타':'#F1EFE8'}
@@ -211,11 +212,11 @@ def classify_ending(surface: str, pos: str) -> str:
     """종결어미 하나의 문체 수준 반환: '하십시오체' | '해요체' | '기타'"""
     if pos in ('EF', 'EP+EF'):
         if any(surface.endswith(p) for p in HAPSHO_EF_SUFFIX): return '하십시오체'
-        if any(surface.endswith(p) for p in HAEYO_SUFFIX):     return '해요체'
+        if any(surface.endswith(p) for p in HAEYO_EF_SUFFIX):     return '해요체'
         if any(surface.endswith(p) for p in BANMAL_SUFFIX):    return '반말'
     if pos in HAPSHO_COMPOUND_POS:
         if any(surface.endswith(p) for p in HAPSHO_BNIDA_SUFFIX): return '하십시오체'
-        if any(surface.endswith(p) for p in HAEYO_SUFFIX):        return '해요체'
+        if any(surface.endswith(p) for p in HAEYO_YO_SUFFIX): return '해요체'
     return '기타'
 
 def speech_level(ending_pairs: list, morphs: list) -> str:
