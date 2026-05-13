@@ -114,7 +114,7 @@ def _build_user_dic() -> str:
    # ── NNG 일반명사 사용자 사전 ──────────────────────────────────────────
     # 단어만 추가하면 됩니다. 시스템 사전보다 무조건 우선 적용됩니다.
     NNG_TERMS = [
-        '비대면', '영업점', '거래'
+        '비대면', '영업점', '거래', '미동의', '수익률','자산','관리',
     ]
 
     def has_jongseong(char):
@@ -177,7 +177,7 @@ FINANCIAL_COMPANIES = {
     '케이뱅크','카카오뱅크','토스뱅크','수협은행','SC제일은행',
     '삼성카드','현대카드','KB국민카드','신한카드','롯데카드','우리카드','하나카드','BC카드',
 }
-FINANCIAL_AFFIX = {
+HANJA_AFFIX = {
     '비','가','구','기','미','불','비','재','전','본','동','타','익'
 }
 
@@ -204,7 +204,7 @@ def is_sino(word, pos):
     if pos not in ('NNG', 'NNP', 'XPN'): return False
     if word in FINANCIAL_COMPANIES: return False
     if word in FINANCIAL_SINO: return True
-    if word in FINANCIAL_AFFIX: return True
+    if word in HANJA_AFFIX: return True
     return False
 
 def classify_ending(surface: str, pos: str) -> str:
