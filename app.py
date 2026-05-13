@@ -133,7 +133,7 @@ def _build_user_dic() -> str:
         last = word[-1]
         jong = 'T' if has_jongseong(last) else 'F'
         rid  = 3534 if jong == 'T' else 3533
-        csv_lines.append(f"{word},1780,{rid},-5000,NNP,*,{jong},{word},*,*,*,*")
+        csv_lines.append(f"{word},1780,{rid},-30000,NNP,*,{jong},{word},*,*,*,*")
         
     tmp_dir  = tempfile.mkdtemp()
     csv_path = os.path.join(tmp_dir, 'financial.csv')
