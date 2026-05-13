@@ -190,7 +190,7 @@ HAPSHO_COMPOUND_POS = {'VV+EF', 'XSV+EF', 'XSA+EF', 'VX+EF'}
 HAPSHO_BNIDA_SUFFIX = ('니다','니까')  # VV/XSV/XSA/VX+EF surface 공통 suffix (바랍니다/드립니다/됩니다/합니다 등)
 
 # ── 해요체 판별 기준 ──
-HAEYO_EF_SUFFIX = ('해요','세요','게요','네요','죠','여요','래요','까요','나요')
+HAEYO_EF_SUFFIX = ('어요','아요','해요','세요','게요','네요','죠','여요','래요','까요','나요')
 HAEYO_YO_SUFFIX = ('어요','아요')
 
 SPEECH_COLOR = {'하십시오체':'#185FA5','해요체':'#0F6E56','혼용':'#BA7517','반말':'#7B4FBF','명사형':'#B05520','기타':'#888780'}
