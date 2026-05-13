@@ -181,12 +181,13 @@ HANJA_AFFIX = {
     '비','가','구','기','미','불','비','재','전','본','동','타','익',
 }
 
+COMPOUND_POS = {'VV+EF', 'XSV+EF', 'XSA+EF', 'VX+EF'}
+
 # ── 하십시오체 판별 기준 ──
 # ① EF 단독: 습니다/습니까/십시오 계열
 HAPSHO_EF_SUFFIX = ('습니다','습니까','십시오','십니다','십니까','읍니다','읍니까')
 # ② VV+EF / XSV+EF / XSA+EF / VX+EF: surface가 ㅂ니다/ㅂ니까로 끝나는 경우 하십시오체
 #    예) 바랍니다(VV+EF), 드립니다(VV+EF), 됩니다(XSV+EF), 합니다(XSV+EF)
-HAPSHO_COMPOUND_POS = {'VV+EF', 'XSV+EF', 'XSA+EF', 'VX+EF'}
 HAPSHO_BNIDA_SUFFIX = ('니다','니까')  # VV/XSV/XSA/VX+EF surface 공통 suffix (바랍니다/드립니다/됩니다/합니다 등)
 
 # ── 해요체 판별 기준 ──
@@ -214,7 +215,7 @@ def classify_ending(surface: str, pos: str) -> str:
         if any(surface.endswith(p) for p in HAPSHO_EF_SUFFIX): return '하십시오체'
         if any(surface.endswith(p) for p in HAEYO_SUFFIX):     return '해요체'
         if any(surface.endswith(p) for p in BANMAL_SUFFIX):    return '반말'
-    if pos in HAPSHO_COMPOUND_POS:
+    if pos in COMPOUND_POS:
         if any(surface.endswith(p) for p in HAPSHO_BNIDA_SUFFIX): return '하십시오체'
         if any(surface.endswith(p) for p in HAEYO_YO_SUFFIX): return '해요체'
     return '기타'
