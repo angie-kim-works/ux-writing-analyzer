@@ -112,76 +112,28 @@ def _build_user_dic() -> str:
     ]
 
    # ── NNG 일반명사 사용자 사전 ──────────────────────────────────────────
-    # 단일어: 문자열만 입력
-    # 복합명사: (표층형, '분해구조') 튜플로 입력
-    #   분해구조 형식 → 형태소/품사+형태소/품사
-    #   예) '비대면' → 비/XPN 으로 시작하고 대면/NNG 으로 끝남
+    # 단어만 추가하면 됩니다. 시스템 사전보다 무조건 우선 적용됩니다.
     NNG_TERMS = [
-        # semantic 없음(기본)
-        '선납금','거래','영업일','자산',
-        # semantic 지정 - 장소/행위/*
-        ('영업점', '장소'), ('관리', '행위')
-
-        # 복합명사 예시
-        ('비대면',     '비/XPN+대면/NNG', '장소'),
-        ('불건전주문', '불/XPN+건전/NNG+주문/NNG', '*'),
-        ('미동의',     '미/XPN+동의/NNG', '행위'),
-        ('재발급',     '재/XPN+발급/NNG', '행위'),
-        ('재투자',     '재/XPN+투자/NNG', '행위'),
-        ('수익률',     '수익/NNG+률/XSN', '*'),
+        '비대면','영업점','전월실적','거래','영업점','영업일','불건전주문',
+        '미동의','초고수',
     ]
-
-    def has_jongseong(char):
-        if not ('\uAC00' <= char <= '\uD7A3'):
-            return True  # 비한글(영문 등)은 T 처리
-        return (ord(char) - 0xAC00) % 28 != 0
 
     csv_lines = []
 
     # NNP 고유명사 (브랜드명)
-    for company in COMPANIES:
-        last = company[-1]
+    for word in COMPANIES:
+        last = word[-1]
         jong = 'T' if has_jongseong(last) else 'F'
         rid  = 3546 if jong == 'T' else 3545
-        csv_lines.append(f"{company},1786,{rid},-100,NNP,*,{jong},{company},*,*,*,*")
+        csv_lines.append(f"{word},1786,{rid},-1000,NNP,*,{jong},{word},*,*,*,*")
 
-    # NNG 일반명사 (단일어 / 복합명사)
-    # 비용 -500: 시스템 사전 연접 비용보다 강하게 우선 적용
-    # NNG semantic별 left/right-id:
-    #   *    : left=1780, right T=3534 / F=3533
-    #   장소  : left=1782, right T=3538 / F=3537
-    #   행위  : left=1785, right T=3544 / F=3543
-    NNG_ID = {
-        '*':  (1780, 3534, 3533),
-        '장소': (1782, 3538, 3537),
-        '행위': (1785, 3544, 3543),
-    }
-    for entry in NNG_TERMS:
-        if isinstance(entry, tuple) and len(entry) == 3:
-            # (표층형, 분해구조, semantic)
-            surface, expression, semantic = entry
-            word_type = 'Compound'
-        elif isinstance(entry, tuple) and len(entry) == 2:
-            # (표층형, semantic) — 단일어
-            surface, semantic = entry
-            expression, word_type = '*', '*'
-        else:
-            # 문자열 단독 — NNG *
-            surface, expression, semantic, word_type = entry, '*', '*', '*'
-
-        lid, rid_t, rid_f = NNG_ID.get(semantic, NNG_ID['*'])
-        last = surface[-1]
+    # NNG 일반명사
+    # left-id 전체 NNG 커버, right-id 종성 여부로 분기, 비용 -1000 고정
+    for word in NNG_TERMS:
+        last = word[-1]
         jong = 'T' if has_jongseong(last) else 'F'
-        rid  = rid_t if jong == 'T' else rid_f
-
-        # 단일어는 두 가지 left-id로 중복 등록 (조사 연접 커버)
-        csv_lines.append(
-            f"{surface},{lid},{rid},-500,NNG,{semantic},{jong},{surface},{word_type},*,*,{expression}"
-        )
-        if word_type == '*' and lid != 1780:
-            csv_lines.append(
-                f"{surface},1780,{rid},-500,NNG,*,{jong},{surface},*,*,*,*"
-            )
+        rid  = 3534 if jong == 'T' else 3533
+        csv_lines.append(f"{word},1780,{rid},-1000,NNG,*,{jong},{word},*,*,*,*")
         
     tmp_dir  = tempfile.mkdtemp()
     csv_path = os.path.join(tmp_dir, 'financial.csv')
