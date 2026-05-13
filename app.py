@@ -125,8 +125,8 @@ def _build_user_dic() -> str:
         ('불건전주문', '불/XPN+건전/NNG+주문/NNG'),
         ('미동의',     '미/XPN+동의/NNG'),
         ('재발급',     '재/XPN+발급/NNG'),
-        ('재투자',     '재/XPN'+투자/NNG'),
-        ('수익률',     '수익/NNG'+'률/XSN'),
+        ('재투자',     '재/XPN+투자/NNG'),
+        ('수익률',     '수익/NNG+률/XSN'),
     ]
 
     def has_jongseong(char):
