@@ -661,19 +661,21 @@ def main():
     with tab5:
         st.caption("MeCab 형태소 분석 원시 결과 CSV 다운로드")
 
-        if filtered:
-            import io as _io, csv as _csv
-            raw_rows = []
+        raw_rows = []
             for r in filtered:
-                for mo in get_mecab().parse(r['_sentence']):
-                    raw_rows.append({
-                        '유형':    r['_type'],
-                        '프로세스': r['_process'],
-                        '문장':    r['_sentence'],
-                        '형태소':  mo.surface,
-                        '품사태그': mo.feature.pos,
-                        '읽기':    mo.feature.reading or '',
-                    })
+                morphs = get_mecab().parse(r['_sentence'])
+                tagged = ' '.join(
+                    f"{mo.surface}/{mo.feature.pos}"
+                    for mo in morphs
+                )
+                raw_rows.append({
+                    '유형':       r['_type'],
+                    '프로세스':    r['_process'],
+                    '문장':       r['_sentence'],
+                    '형태소_분석': tagged,
+                    '분석_문체':   r['_analysis']['speech_level'] if r['_analysis'] else '',
+                    '종결어미':    ' / '.join(r['_analysis']['final_endings']) if r['_analysis'] else '',
+                })
             buf = _io.StringIO()
             writer = _csv.DictWriter(buf, fieldnames=raw_rows[0].keys())
             writer.writeheader()
