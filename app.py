@@ -111,11 +111,20 @@ def _build_user_dic() -> str:
         '현대카드','신한카드','BC카드','카카오뱅크카드','삼성카드',
     ]
 
-    # ── NNG 일반명사 사용자 사전 ──────────────────────────────────────────
-    # 형태소 분석 결과 검수 후 단일어로 처리할 금융 용어를 여기에 추가하세요
-    # 예) 복합명사가 분리되는 경우: '미상환' → 미/XPN+상환/NNG 로 분리될 때
+   # ── NNG 일반명사 사용자 사전 ──────────────────────────────────────────
+    # 단일어: 문자열만 입력
+    # 복합명사: (표층형, '분해구조') 튜플로 입력
+    #   분해구조 형식 → 형태소/품사+형태소/품사
+    #   예) '비대면' → 비/XPN 으로 시작하고 대면/NNG 으로 끝남
     NNG_TERMS = [
-        '미상환','불건전주문','선납금','거래'
+        # 단일어 예시
+        '미상환','선납금','거래'
+
+        # 복합명사 예시
+        ('비대면',     '비/XPN+대면/NNG'),
+        ('불건전주문', '불/XPN+건전/NNG+주문/NNG'),
+        ('미동의',     '미/XPN+동의/NNG'),
+        ('재발급',     '재/XPN+발급/NNG'),
     ]
 
     def has_jongseong(char):
@@ -132,13 +141,21 @@ def _build_user_dic() -> str:
         rid  = 3546 if jong == 'T' else 3545
         csv_lines.append(f"{company},1786,{rid},-100,NNP,*,{jong},{company},*,*,*,*")
 
-    # NNG 일반명사 (금융 용어)
+    # NNG 일반명사 (단일어 / 복합명사)
     # NNG left-id: 1785, right-id: T=3540 / F=3539
-    for term in NNG_TERMS:
-        last = term[-1]
+    for entry in NNG_TERMS:
+        if isinstance(entry, tuple):
+            surface, expression = entry
+            word_type = 'Compound'
+        else:
+            surface, expression = entry, '*'
+            word_type = '*'
+        last = surface[-1]
         jong = 'T' if has_jongseong(last) else 'F'
         rid  = 3540 if jong == 'T' else 3539
-        csv_lines.append(f"{term},1785,{rid},-100,NNG,*,{jong},{term},*,*,*,*")
+        csv_lines.append(
+            f"{surface},1785,{rid},-100,NNG,*,{jong},{surface},{word_type},*,*,{expression}"
+        )
         
     tmp_dir  = tempfile.mkdtemp()
     csv_path = os.path.join(tmp_dir, 'financial.csv')
