@@ -125,7 +125,7 @@ def _build_user_dic() -> str:
         last = word[-1]
         jong = 'T' if has_jongseong(last) else 'F'
         rid  = 3546 if jong == 'T' else 3545
-        csv_lines.append(f"{word},1786,{rid},0,NNP,*,{jong},{word},*,*,*,*")
+        csv_lines.append(f"{word},1786,{rid},-1000,NNP,*,{jong},{word},*,*,*,*")
 
     # NNG 일반명사
     # left-id 전체 NNG 커버, right-id 종성 여부로 분기, 비용 -1000 고정
@@ -133,7 +133,7 @@ def _build_user_dic() -> str:
         last = word[-1]
         jong = 'T' if has_jongseong(last) else 'F'
         rid  = 3534 if jong == 'T' else 3533
-        csv_lines.append(f"{word},1780,{rid},0,NNG,*,{jong},{word},*,*,*,*")
+        csv_lines.append(f"{word},1780,{rid},-1000,NNP,*,{jong},{word},*,*,*,*")
         
     tmp_dir  = tempfile.mkdtemp()
     csv_path = os.path.join(tmp_dir, 'financial.csv')
