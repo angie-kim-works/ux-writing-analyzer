@@ -111,18 +111,35 @@ def _build_user_dic() -> str:
         '현대카드','신한카드','BC카드','카카오뱅크카드','삼성카드',
     ]
 
+    # ── NNG 일반명사 사용자 사전 ──────────────────────────────────────────
+    # 형태소 분석 결과 검수 후 단일어로 처리할 금융 용어를 여기에 추가하세요
+    # 예) 복합명사가 분리되는 경우: '미상환' → 미/XPN+상환/NNG 로 분리될 때
+    NNG_TERMS = [
+        '미상환','불건전주문','선납금','거래'
+    ]
+
     def has_jongseong(char):
         if not ('\uAC00' <= char <= '\uD7A3'):
             return True  # 비한글(영문 등)은 T 처리
         return (ord(char) - 0xAC00) % 28 != 0
 
     csv_lines = []
+
+    # NNP 고유명사 (브랜드명)
     for company in COMPANIES:
-        last  = company[-1]
-        jong  = 'T' if has_jongseong(last) else 'F'
-        rid   = 3546 if jong == 'T' else 3545
+        last = company[-1]
+        jong = 'T' if has_jongseong(last) else 'F'
+        rid  = 3546 if jong == 'T' else 3545
         csv_lines.append(f"{company},1786,{rid},-100,NNP,*,{jong},{company},*,*,*,*")
 
+    # NNG 일반명사 (금융 용어)
+    # NNG left-id: 1785, right-id: T=3540 / F=3539
+    for term in NNG_TERMS:
+        last = term[-1]
+        jong = 'T' if has_jongseong(last) else 'F'
+        rid  = 3540 if jong == 'T' else 3539
+        csv_lines.append(f"{term},1785,{rid},-100,NNG,*,{jong},{term},*,*,*,*")
+        
     tmp_dir  = tempfile.mkdtemp()
     csv_path = os.path.join(tmp_dir, 'financial.csv')
     dic_path = os.path.join(tmp_dir, 'financial.dic')
