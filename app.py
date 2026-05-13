@@ -657,12 +657,13 @@ def main():
             )
 
 # ── 탭5: 형태소 원시 결과 ────────────────────────────────────────────────
-    # ── 탭5: 형태소 원시 결과 ────────────────────────────────────────────────
     with tab5:
         st.caption("MeCab 형태소 분석 원시 결과 CSV 다운로드")
 
-        raw_rows = []
-        for r in filtered:
+        if filtered:
+            import io as _io, csv as _csv
+            raw_rows = []
+            for r in filtered:
                 morphs = get_mecab().parse(r['_sentence'])
                 tagged = ' '.join(
                     f"{mo.surface}/{mo.feature.pos}"
