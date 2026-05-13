@@ -396,7 +396,7 @@ def main():
     hon_top       = Counter(all_hon).most_common(5)
 
     # ── 탭
-    tab1, tab2, tab3, tab4 = st.tabs(["📊 전체 요약", "📂 유형 / 프로세스", "🔢 빈도 분석", "📝 문장별 결과"])
+    tab1, tab2, tab3, tab4, tab5 = st.tabs(["📊 전체 요약", "📂 유형 / 프로세스", "🔢 빈도 분석", "📝 문장별 결과", "🔬 형태소 원시 결과"])
 
     # ── 탭1: 전체 요약 ────────────────────────────────────────────────────────
     with tab1:
@@ -656,6 +656,36 @@ def main():
                 mime="text/csv",
             )
 
+# ── 탭5: 형태소 원시 결과 ────────────────────────────────────────────────
+    # ── 탭5: 형태소 원시 결과 ────────────────────────────────────────────────
+    with tab5:
+        st.caption("MeCab 형태소 분석 원시 결과 CSV 다운로드")
+
+        if filtered:
+            import io as _io, csv as _csv
+            raw_rows = []
+            for r in filtered:
+                for mo in get_mecab().parse(r['_sentence']):
+                    raw_rows.append({
+                        '유형':    r['_type'],
+                        '프로세스': r['_process'],
+                        '문장':    r['_sentence'],
+                        '형태소':  mo.surface,
+                        '품사태그': mo.feature.pos,
+                        '읽기':    mo.feature.reading or '',
+                    })
+            buf = _io.StringIO()
+            writer = _csv.DictWriter(buf, fieldnames=raw_rows[0].keys())
+            writer.writeheader()
+            writer.writerows(raw_rows)
+            st.download_button(
+                label="📥 형태소 분석 결과 CSV 다운로드",
+                data=buf.getvalue().encode('utf-8-sig'),
+                file_name="morpheme_raw.csv",
+                mime="text/csv",
+            )
+        else:
+            st.caption("분석된 문장이 없습니다.")
 
 if __name__ == "__main__":
     main()
