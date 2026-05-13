@@ -119,8 +119,6 @@ def _build_user_dic() -> str:
 
     csv_lines = []
 
-    csv_lines = []
-
     # NNP 고유명사 (브랜드명)
     for company in COMPANIES:
         last = company[-1]
