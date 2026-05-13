@@ -662,7 +662,7 @@ def main():
         st.caption("MeCab 형태소 분석 원시 결과 CSV 다운로드")
 
         raw_rows = []
-            for r in filtered:
+        for r in filtered:
                 morphs = get_mecab().parse(r['_sentence'])
                 tagged = ' '.join(
                     f"{mo.surface}/{mo.feature.pos}"
