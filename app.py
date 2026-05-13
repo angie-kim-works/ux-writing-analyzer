@@ -117,6 +117,11 @@ def _build_user_dic() -> str:
         '비대면', '영업점', '거래'
     ]
 
+    def has_jongseong(char):
+        if not ('\uAC00' <= char <= '\uD7A3'):
+            return True  # 비한글(영문 등)은 T 처리
+        return (ord(char) - 0xAC00) % 28 != 0
+    
     csv_lines = []
 
     # NNP 고유명사 (브랜드명)
