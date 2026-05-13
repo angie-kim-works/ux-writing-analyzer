@@ -192,7 +192,7 @@ HAPSHO_BNIDA_SUFFIX = ('니다','니까')  # VV/XSV/XSA/VX+EF surface 공통 suf
 
 # ── 해요체 판별 기준 ──
 HAEYO_SUFFIX = ('어요','아요','해요','세요','게요','네요','죠','여요','래요','까요','나요','요')
-HAEYO_YO_SUFFIX = ('요')
+HAEYO_YO_SUFFIX = ('아요','어요','요')
 
 SPEECH_COLOR = {'하십시오체':'#185FA5','해요체':'#0F6E56','혼용':'#BA7517','반말':'#7B4FBF','명사형':'#B05520','기타':'#888780'}
 SPEECH_BG    = {'하십시오체':'#E6F1FB','해요체':'#E1F5EE','혼용':'#FAEEDA','반말':'#F0EAFB','명사형':'#FAEEE6','기타':'#F1EFE8'}
