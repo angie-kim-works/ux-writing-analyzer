@@ -119,20 +119,22 @@ def _build_user_dic() -> str:
 
     csv_lines = []
 
+    csv_lines = []
+
     # NNP 고유명사 (브랜드명)
-    for word in COMPANIES:
-        last = word[-1]
+    for company in COMPANIES:
+        last = company[-1]
         jong = 'T' if has_jongseong(last) else 'F'
         rid  = 3546 if jong == 'T' else 3545
-        csv_lines.append(f"{word},1786,{rid},-1000,NNP,*,{jong},{word},*,*,*,*")
+        csv_lines.append(f"{company},1786,{rid},-100,NNP,*,{jong},{company},*,*,*,*")
 
-    # NNG 일반명사
-    # left-id 전체 NNG 커버, right-id 종성 여부로 분기, 비용 -1000 고정
-    for word in NNG_TERMS:
-        last = word[-1]
+    # NNG 일반명사 (금융 용어)
+    # NNG left-id: 1785, right-id: T=3540 / F=3539
+    for term in NNG_TERMS:
+        last = term[-1]
         jong = 'T' if has_jongseong(last) else 'F'
-        rid  = 3534 if jong == 'T' else 3533
-        csv_lines.append(f"{word},1780,{rid},-1000,NNG,*,{jong},{word},*,*,*,*")
+        rid  = 3540 if jong == 'T' else 3539
+        csv_lines.append(f"{term},1785,{rid},-100,NNG,*,{jong},{term},*,*,*,*")
         
     tmp_dir  = tempfile.mkdtemp()
     csv_path = os.path.join(tmp_dir, 'financial.csv')
