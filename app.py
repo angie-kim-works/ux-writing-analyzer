@@ -181,7 +181,7 @@ HANJA_AFFIX = {
     '비','가','구','기','미','불','비','재','전','본','동','타','익',
 }
 
-COMPOUND_POS = {'VV+EF', 'XSV+EF', 'XSA+EF', 'VX+EF', 'VCP+EF', }
+COMPOUND_POS = {'VV+EF', 'XSV+EF', 'XSA+EF', 'VX+EF', 'VCP+EF', 'VCN+EF',}
 
 # ── 하십시오체 판별 기준 ──
 # ① EF 단독: 습니다/습니까/십시오 계열
